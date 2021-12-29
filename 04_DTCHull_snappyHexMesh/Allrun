@@ -65,5 +65,5 @@ touch a.foam # name is your choice
 # constant/triSurface/
 #   - DTC-scaled.stl.gz             (added) automatically copy using command line given above, or copy manually
 
-# Allclean                          (no changes)
+# Allclean                          (modified), to delete the copied and generated files
 # Allrun                            (modified)
