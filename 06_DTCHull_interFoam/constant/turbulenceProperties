@@ -1,0 +1,98 @@
+/*--------------------------------*- C++ -*----------------------------------*\
+| =========                 |                                                 |
+| \\      /  F ield         | OpenFOAM: The Open Source CFD Toolbox           |
+|  \\    /   O peration     | Version:  v2112                                 |
+|   \\  /    A nd           | Website:  www.openfoam.com                      |
+|    \\/     M anipulation  |                                                 |
+\*---------------------------------------------------------------------------*/
+FoamFile
+{
+    version     2.0;
+    format      ascii;
+    class       dictionary;
+    object      turbulenceProperties;
+}
+// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
+
+simulationType      RAS; // Reynold Average Navier-Stroke, the effects of turbulence are modeled
+
+RAS
+{
+    RASModel        kOmegaSST; // Turbulence model (define/check initial turbulence parameters "k","Omega" and "nut" values in "0" dir)
+    /* k-omega: Two-equation model, two additional transport equatios (PDEs) 
+        which account for the history effects like convection and diffusion of turbulent energy
+        a low Re model, i.e., it can be used for flows with low Reynolds number 
+        where the boundary layer is relatively thick and the viscous sublayer can be resolved
+        Thus, the standard k−ω model is best used for near-wall treatment. 
+        Other advantages include a superior performance for complex boundary layer flows under adverse pressure gradients 
+        and separations (e.g., external aerodynamics and turbomachinery). 
+        On the contrary, this model has also shown to predict excessive and early separations
+
+        k: turbulent kinetic energy, which determines the energy in turbulence 
+        (will use kqRWallFunction for the hull boundry, see k in "0" dir)
+
+        omega: specific turbulent dissipation rate (ω), which determines the rate of dissipation per unit turbulent kinetic energy,
+        also referred to as the scale of turbulence (will use a omegaWallFunction for the hull boundry, see omega in "0" dir)
+    
+        SST: Shear Stress Transport
+        The SST formulation switches to a k−ϵ behavior in the free-stream, 
+        which avoids the k−ω problem of being sensitive to the inlet free-stream turbulence properties.
+        On the negative side, the SST model produces some large turbulence levels 
+        in regions with large normal strain, like stagnation regions and regions with strong acceleration. 
+        This effect is much less pronounced than with a normal k-epsilon model though.
+
+    */
+
+    turbulence      on; // On/off switch
+
+    printCoeffs     on; // // Optionally write the model coefficients at run-time
+}
+
+
+// ************************************************************************* //
+
+// Additional Note on Turbulence Model and Wall Functions
+/*
+- use RANS instead of DNS --> allow to use larger mesh size, but cannot develop turbulence which are orginated from very small regions
+- use Turbulence models to add the effects of turbulnece, but turbulence models don't perform well in area close to the wall
+- To deal with near wall region: Two ways >>
+    1. Integrate turbulence to the wall, turbulence models are modified 
+        to enable the viscosity-affected region to be resoleved 
+        with all the mesh down to the wall, including viscous sublayer. 
+        First cell center must be in the viscous layer (y+ < 5), preferably y+ = 1.
+        Problem: need abundant mesh number, consequently more compuational resources
+
+    2. Use Wall functions, which can model the near wall region. 
+        Wall functions are empirical equations used to satisfy the physics of the flow 
+        in the near wall region and the First cell center needs to be placed in the log-law region (30 < y+ < 200)
+        to ensure the accuracy of the result. Wall functions are used to bridge the inner region between the wall and the turbulence
+        fully developed region, in order to provide near-wall boundary conditions for the momentum and
+        turbulence transport equations, rather than to specify those conditions at the wall itself.
+
+        When using wall functions approach there is no need to resolve the boundary layer, 
+        which yields to a significant reduction of the mesh size and the computational domain.
+
+        In OpenFOAM the existing wall functions have been modified to ensure that they can provide the
+        accurate result so wherever the position of the first cell center.
+
+        In k-ω model, standard k-ω equations are simplified to get the behaviour
+        of ω in viscous sub-layer and logarithmic region. (omegaWallFunctions for viscous layer, log layer, intermediate/buffer layer)
+
+        RAS, high Reynolds number: first cell height should be in the region of 30 < y+ < 200. 
+        Note that the upper limit is imposed by the location of the outer layer, which depends on the Reynolds number
+        RAS, low Reynolds number: mesh required to resolve the viscous sub-layer, typically using 10-20 layers
+
+
+        kqRWallFunction:                For high Re, zero gradient condition
+        kLowReWallFunction:             for high and low Re, the condition based on the position of y+
+        epsilonWallFunction:            High Re
+        epsilonLowReWallFunction:       for High and Low Re, the condition based on the position of y+
+        V2WallFunction:                 For High and Low Re, The condition based on the position of y+
+        fWallFunction:                  For High and Low Re, The condition based on the position of y+
+        omegaWallFunction:              For High and Low Re, The condition based the blending of viscous and log layer
+        nutWallFunction:                abstract class, not provide specific nut
+        nutLowReWallFunction:           for low Re, the condition is zero
+        nutUWallFunction:               condition based on the velocity
+        nutkWallFunction:               condition based on the kinematic
+        utUSpaldingWallFunction:        for the whole area  
+*/

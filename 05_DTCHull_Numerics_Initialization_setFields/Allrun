@@ -1,0 +1,106 @@
+cd "${0%/*}" || exit 
+. ${WM_PROJECT_DIR:?}/bin/tools/RunFunctions # This is a hack to get the path to the RunFunctions.sh script
+
+## Block mesh generation with z-direction refinement
+runApplication blockMesh 
+
+
+## Refinement in x and y-directions around the ship hull
+for i in 1 2 3 4 5 6 # do refinement 6 times, each time the refinement box region gets smaller, final 6th refinement is just around the hull geometry
+do
+    runApplication -s "$i" \
+        topoSet -dict system/topoSetDict.${i} # define the box region to refine (see topoSetDict files)
+
+    runApplication -s "$i" \
+        refineMesh -dict system/refineMeshDict -overwrite # refine mesh on existing mesh (Overwrite the existing mesh files)
+        # 1 cell in box region becomes 4 cells in 2D view, 8 cells in 3D after each refinement
+done
+# mesh size after final refinement is about 1.4 million, this will get less after trimming the hull geometry using "snappyHexMesh" (next tutorial)
+
+
+## Cut out the hull geometry from refined block mesh
+# First, copy the hull surface .stl file to "constant/triSurface" folder
+mkdir -p constant/triSurface # create "triSurface" folder in "constant" directory
+
+# copy DTC hull surface from resources folder to "triSurface" folder
+cp -f \
+    "$FOAM_TUTORIALS"/resources/geometry/DTC-scaled.stl.gz \
+    constant/triSurface/
+# the hull surface STL file must be completely watertight manifold (include deck and transom, no free edges, no holes), 
+# Blender 3D-Print tool can be used to check and repair some manifold problems
+
+# Extract Edge Mesh (.eMesh) for feature edge refinement (refine any cell intersected by the edges to a specified level)
+runApplication surfaceFeatureExtract
+# if your file name is different, don't forget to change the file names in "surfaceFeatureExtractDict"
+# check the generated files in the "extendedFeatureEdgeMesh", .eMesh file is generated in "triSurface" folder
+
+runApplication snappyHexMesh -overwrite # see snappyHexMeshDict for its steps and more information
+# snappyHexMesh uses "STL surface mesh" and "eMesh edge mesh" files
+# if your file names are different, don't forget to change the file names in "snappyHexMeshDict" (2 places, STL and eMesh)
+# Need to add write-related settings in "controlDict"
+# the files in "constant/polyMesh" folder are updated
+
+runApplication checkMesh # (see "log.checkMesh" file)
+# Meshing finished, Yayyyy....
+#------------------------------------------------------------------------------------------------------#
+
+# NUMERICS and INITIALIZATION
+# Prepare "controlDict" file in "system" directory
+# Prepare "g", "hRef", "transportProperties", "turbulenceProperties" files in "constant" directory
+# Prepare "fvSchemes" and "fvSolution" files (NUMERICS) in "system" directory
+
+# Prepare "0" directory (INITIAL CONDITIONS)
+# You may delete the 0" dir its contents created in meshing process
+# Add "U, p_rgh, alpha.water, nut, k, omega" files to "0.orig" dir (a backup folder for "0", since "0" will be deleded when "./Allclan" is run)
+restore0Dir # copy files form "0.orig" to "0" dir
+
+# Set alpha.water values (in water region alpha.water = 1, the rest => 0 => air)
+runApplication setFields
+# "alpha.water" file in "0" dir will be modified
+
+# All Setting finished for serial run. (Next: setting up for parallel run and running interFoam)
+#----------------------------------------------------------------------------------------------------#
+
+# Create a ".foam" file for ParaView
+touch a.foam # name is your choice
+
+#########################################
+## List of files defined by user
+#-------------- Mesh-generation related files --------------------#
+# system/
+#   - blockMeshDict                 (no changes)
+#   - refineMeshDict                (no changes)
+#   - topoSetDict.1                 (no changes)
+#   - topoSetDict.2                 (no changes)
+#   - topoSetDict.3                 (no changes)
+#   - topoSetDict.4                 (no changes)
+#   - topoSetDict.5                 (no changes)
+#   - topoSetDict.6                 (no changes)
+#   - surfaceFeatureExtractDict     (no changes)
+#   - meshQualityDict               (no changes)
+#   - snappyHexMMeshDict            (no changes)
+# constant/triSurface/
+#   - DTC-scaled.stl.gz             (no changes)
+
+#-------- Numerics, Initilization and Simulation Control ---------#
+# system/
+#   - controlDict                   (modified) add all the settings
+#   - fvSchemes                     (modified) add all the settings
+#   - fvSolutions                   (modified) add all the settings
+#   - setFieldsDict                 (added)
+# constant/
+#   - g                             (added)
+#   - hRef                          (added)
+#   - transportProperties           (added)
+#   - turbulenceProperties          (added)
+# 0/
+#   - k                             (added) Turbulence kinetic energy
+#   - omega                         (added) Specific turbulent dissipation rate
+#   - nut                           (added) Turbulence kinematic viscosity
+#   - U                             (added) Velocity
+#   - p_rgh                         (added) p_rgh = p - rho*g*h
+#   - alpha.water                   (added)
+#   - pointDisplacement             (added)
+
+# Allclean                          (no changes)
+# Allrun                            (modified)

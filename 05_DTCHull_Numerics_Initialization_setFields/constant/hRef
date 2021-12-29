@@ -1,0 +1,26 @@
+/*--------------------------------*- C++ -*----------------------------------*\
+| =========                 |                                                 |
+| \\      /  F ield         | OpenFOAM: The Open Source CFD Toolbox           |
+|  \\    /   O peration     | Version:  v2112                                 |
+|   \\  /    A nd           | Website:  www.openfoam.com                      |
+|    \\/     M anipulation  |                                                 |
+\*---------------------------------------------------------------------------*/
+FoamFile
+{
+    version     2.0;
+    format      ascii;
+    class       uniformDimensionedScalarField;
+    object      hRef; // Reference height in the opposite direction to gravity
+}
+// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
+// If the hydrostaticMode is active, values are also required for gravity, g, and reference height, hRef.
+// For the calculation of Reference static pressure in p_rgh fromulation
+// for more information:
+// https://www.openfoam.com/documentation/guides/latest/doc/guide-applications-solvers-variable-transform-p-rgh.html
+// https://www.openfoam.com/documentation/guides/latest/api/classFoam_1_1prghPressureFvPatchScalarField.html ( p_rgh = p - rho*g*(h - hRef))
+
+dimensions      [0 1 0 0 0 0 0];
+value           0.244; // calm waterline (set to ship draft for this example)
+
+
+// ************************************************************************* //

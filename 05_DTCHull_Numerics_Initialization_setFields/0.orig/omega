@@ -1,0 +1,63 @@
+/*--------------------------------*- C++ -*----------------------------------*\
+| =========                 |                                                 |
+| \\      /  F ield         | OpenFOAM: The Open Source CFD Toolbox           |
+|  \\    /   O peration     | Version:  v2112                                 |
+|   \\  /    A nd           | Website:  www.openfoam.com                      |
+|    \\/     M anipulation  |                                                 |
+\*---------------------------------------------------------------------------*/
+FoamFile
+{
+    version     2.0;
+    format      ascii;
+    class       volScalarField;
+    object      omega; // specific turbulent dissipation rate
+}
+// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
+
+dimensions      [0 0 -1 0 0 0 0]; // [1/s]
+
+internalField   uniform 2;
+
+boundaryField
+{
+    #includeEtc "caseDicts/setConstraintTypes"
+
+    inlet
+    {
+        type            fixedValue;
+        value           $internalField;
+    }
+
+    outlet
+    {
+       type            inletOutlet;
+       inletValue      $internalField;
+       value           $internalField;
+    }
+
+    atmosphere
+    {
+        type            inletOutlet;
+        inletValue      $internalField;
+        value           $internalField;
+    }
+
+    hull
+    {
+        type            omegaWallFunction; // For High and Low Re, The condition based the blending of viscous and log layer
+        value           $internalField;
+    }
+}
+
+
+// ************************************************************************* //
+
+/*
+Omega wall functions provide the constraint on turbulence specific dissipation.
+the omega wall function provides the combination of viscous and log equation. 
+In the OpenFOAM omegaWallFunction is a special wall function which can switch
+between viscous and logarithmic region according to the position of y+. 
+In the intersection of the viscous sublayer and log-law region value is calculated 
+through blending the viscous and log-law sublayer value.
+
+*/

@@ -1,0 +1,100 @@
+/*--------------------------------*- C++ -*----------------------------------*\
+| =========                 |                                                 |
+| \\      /  F ield         | OpenFOAM: The Open Source CFD Toolbox           |
+|  \\    /   O peration     | Version:  v2112                                 |
+|   \\  /    A nd           | Website:  www.openfoam.com                      |
+|    \\/     M anipulation  |                                                 |
+\*---------------------------------------------------------------------------*/
+FoamFile
+{
+    version     2.0;
+    format      ascii;
+    class       dictionary;
+    object      controlDict;
+}
+// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
+
+application     interFoam; // Multiphase Unsteady solver
+
+startFrom       startTime;
+
+startTime       0;
+
+stopAt          endTime;
+
+endTime         4000; // [sec]
+
+deltaT          1;
+
+writeControl    timeStep;
+
+writeInterval   100;
+
+purgeWrite      0;
+
+writeFormat     binary;
+
+writePrecision  6; // write tolerance needs to be higher than mergeTolerance in "snappyHexMeshDict".
+
+writeCompression off;
+
+timeFormat      general;
+
+timePrecision   6;
+
+runTimeModifiable yes;
+
+// Extra (to adjust deltaT according to maximum Courant number, Recommanded)
+// adjustTimeStep  yes; // it may take longer due to small dt
+// maxCo           1; // Maximum Courant no. (Co = U dt/dx), Co = 1: dt < dx/U, could be larger value for full scale ship
+// maxAlphaCo      1;
+// maxDeltaT       1;
+
+functions // Post-processing functions
+{
+    // To extract forces and moments in x,y,z directions (viscous and pressure)
+    forces
+    {
+        type            forces;
+        libs            (forces);
+        patches         (hull);
+        rhoInf          998.8;
+        log             on;
+        writeControl    timeStep;
+        writeInterval   1;
+        CofR            (2.929541 0 0.2); // Center of Rotation or force/moment measuring point
+    }
+
+    // to extract free surface vtp/vtk file at each write interval during running
+    // Better way: after running, ParaView >> Contour >> IsoSurface (alpha.water = 0.5), can animate all time steps with temporal interpolation
+    // freeSurface
+    // {
+    //     type            surfaces;
+    //     functionObjectLibs
+    //     (
+    //         "libsampling.so"
+    //     );
+    //     outputControl   outputTime;
+    //     outputInterval  1;
+    //     surfaceFormat   vtk;
+    //     fields
+    //     (
+    //         alpha1
+    //     );
+    //     surfaces
+    //     (
+    //         freeSurface
+    //         {
+    //             type        isoSurfaceCell;
+    //             isoField    alpha1;
+    //             isoValue    0.5;
+    //             interpolate false;
+    //             regularise  false;
+    //         }
+    //     );
+    //     interpolationScheme cell;
+    // }
+}
+
+
+// ************************************************************************* //

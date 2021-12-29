@@ -1,0 +1,69 @@
+. ${WM_PROJECT_DIR:?}/bin/tools/RunFunctions # This is a hack to get the path to the RunFunctions.sh script
+
+## Block mesh generation with z-direction refinement
+runApplication blockMesh 
+
+
+## Refinement in x and y-directions around the ship hull
+for i in 1 2 3 4 5 6 # do refinement 6 times, each time the refinement box region gets smaller, final 6th refinement is just around the hull geometry
+do
+    runApplication -s "$i" \
+        topoSet -dict system/topoSetDict.${i} # define the box region to refine (see topoSetDict files)
+
+    runApplication -s "$i" \
+        refineMesh -dict system/refineMeshDict -overwrite # refine mesh on existing mesh (Overwrite the existing mesh files)
+        # 1 cell in box region becomes 4 cells in 2D view, 8 cells in 3D after each refinement
+done
+# mesh size after final refinement is about 1.4 million, this will get less after trimming the hull geometry using "snappyHexMesh" (next tutorial)
+
+
+## Cut out the hull geometry from refined block mesh
+# First, copy the hull surface .stl file to "constant/triSurface" folder
+mkdir -p constant/triSurface # create "triSurface" folder in "constant" directory
+
+# copy DTC hull surface from resources folder to "triSurface" folder
+cp -f \
+    "$FOAM_TUTORIALS"/resources/geometry/DTC-scaled.stl.gz \
+    constant/triSurface/
+# the hull surface STL file must be completely watertight manifold (include deck and transom, no free edges, no holes), 
+# Blender 3D-Print tool can be used to check and repair some manifold problems
+
+# Extract Edge Mesh (.eMesh) for feature edge refinement (refine any cell intersected by the edges to a specified level)
+runApplication surfaceFeatureExtract
+# if your file name is different, don't forget to change the file names in "surfaceFeatureExtractDict"
+# check the generated files in the "extendedFeatureEdgeMesh", .eMesh file is generated in "triSurface" folder
+
+runApplication snappyHexMesh -overwrite # see snappyHexMeshDict for its steps and more information
+# snappyHexMesh uses "STL surface mesh" and "eMesh edge mesh" files
+# if your file names are different, don't forget to change the file names in "snappyHexMeshDict" (2 places, STL and eMesh)
+# Need to add write-related settings in "controlDict"
+# the files in "constant/polyMesh" folder are updated
+
+runApplication checkMesh # (see "log.checkMesh" file)
+# Meshing finished, Yayyyy....
+
+# Create a ".foam" file for ParaView
+touch a.foam # name is your choice
+
+#########################################
+## List of files defined by user
+# system/
+#   - blockMeshDict                 (no changes)
+#   - controlDict                   (modified) added write-related settings for snappyHexMesh
+#   - refineMeshDict                (no changes)
+#   - topoSetDict.1                 (no changes)
+#   - topoSetDict.2                 (no changes)
+#   - topoSetDict.3                 (no changes)
+#   - topoSetDict.4                 (no changes)
+#   - topoSetDict.5                 (no changes)
+#   - topoSetDict.6                 (no changes)
+#   - surfaceFeatureExtractDict     (added)
+#   - meshQualityDict               (added)
+#   - snappyHexMMeshDict            (added)
+#   - fvSchemes                     (added) no settings, only to be able to run snappyHexMesh
+#   - fvSolutions                   (added) no settings, only to be able to run snappyHexMesh
+# constant/triSurface/
+#   - DTC-scaled.stl.gz             (added) automatically copy using command line given above, or copy manually
+
+# Allclean                          (no changes)
+# Allrun                            (modified)

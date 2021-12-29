@@ -1,0 +1,72 @@
+/*--------------------------------*- C++ -*----------------------------------*\
+| =========                 |                                                 |
+| \\      /  F ield         | OpenFOAM: The Open Source CFD Toolbox           |
+|  \\    /   O peration     | Version:  v2112                                 |
+|   \\  /    A nd           | Website:  www.openfoam.com                      |
+|    \\/     M anipulation  |                                                 |
+\*---------------------------------------------------------------------------*/
+FoamFile
+{
+    version     2.0;
+    format      ascii;
+    class       dictionary;
+    object      fvSchemes;
+}
+// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
+
+ddtSchemes // first and second time derivatives
+{
+    default         localEuler; // pseudo transient for accelerating a solution to steady-state using local-time stepping; first order implicit
+    // steadyState: sets time derivatives to zero.
+    // Euler: transient, first order implicit, bounded.
+    // backward: transient, second order implicit, potentially unbounded
+    /* Solvers (interFoam in this case) are generally configured to simulate either transient or steady-state. 
+    Changing the time scheme from one which is steady-state to transient, or visa versa, 
+    does not affect the fundamental nature of the solver and so fails to achieve its purpose, 
+    yielding a nonsensical solution. */
+}
+
+gradSchemes // gradient
+{
+    default         Gauss linear;
+    // Gauss: standard finite volume discretisation of Gaussian integration
+    // which requires the interpolation of values from cell centres to face centres
+    // linear: interpolation scheme, linear interpolation or central differencing
+    limitedGrad     cellLimited Gauss linear 1;
+    // cellLimited: limits the gradient such that when cell values are extrapolated to faces using the calculated gradient, 
+    // the face values do not fall outside the bounds of values in surrounding cells. A limiting coefficient is specified 
+    // after the underlying scheme for which 1 guarantees boundedness and 0 applies no limiting; 1 is invariably used
+}
+
+divSchemes // divergence
+{
+    div(rhoPhi,U)   Gauss linearUpwind grad(U); // linearUpwind: second order, upwind-biased, unbounded (but much less so than linear), that requires discretisation of the velocity gradient to be specified
+    div(phi,alpha)  Gauss vanLeer;
+    div(phirb,alpha) Gauss linear;
+    div(phi,k)      Gauss linearUpwind limitedGrad;
+    div(phi,omega)  Gauss linearUpwind limitedGrad;
+    div(((rho*nuEff)*dev2(T(grad(U))))) Gauss linear;
+}
+
+laplacianSchemes
+{
+    default         Gauss linear corrected;
+}
+
+interpolationSchemes //  interpolations of values typically from cell centres to face centres, primarily used in the interpolation of velocity to face centres for the calculation of flux phi
+{
+    default         linear;
+}
+
+snGradSchemes // component of gradient normal to a cell face, required to evaluate a Laplacian term using Gaussian integration
+{
+    default         corrected;
+}
+
+wallDist // distance to wall calculation method
+{
+    method          meshWave; // Fast topological mesh-wave method for calculating the distance to nearest patch for all cells and boundary
+}
+
+
+// ************************************************************************* //

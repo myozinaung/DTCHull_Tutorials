@@ -1,0 +1,35 @@
+/*--------------------------------*- C++ -*----------------------------------*\
+| =========                 |                                                 |
+| \\      /  F ield         | OpenFOAM: The Open Source CFD Toolbox           |
+|  \\    /   O peration     | Version:  v2112                                 |
+|   \\  /    A nd           | Website:  www.openfoam.com                      |
+|    \\/     M anipulation  |                                                 |
+\*---------------------------------------------------------------------------*/
+FoamFile
+{
+    version     2.0;
+    format      ascii;
+    class       dictionary;
+    object      fvSchemes;
+}
+// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
+
+// Not necessary at this stage, but snappyHexMesh doesn't run without fvSchemes file
+// Three essential entries: "divSchemes", "gradSchemes", "laplacianSchemes"
+
+divSchemes
+{
+
+}
+
+gradSchemes
+{
+
+}
+
+laplacianSchemes
+{
+
+}
+
+// ************************************************************************* //

@@ -1,0 +1,25 @@
+. ${WM_PROJECT_DIR:?}/bin/tools/RunFunctions # This is a hack to get the path to the RunFunctions.sh script
+
+## Block mesh generation with z-direction refinement
+runApplication blockMesh # from tutorial 01
+
+## Refinement in x and y-directions around the ship hull
+runApplication -s "1" \
+    topoSet -dict system/topoSetDict.1 # define the box region to refine 
+
+runApplication -s "1" \
+    refineMesh -dict system/refineMeshDict -overwrite # refine mesh on existing mesh (Overwrite the existing mesh files)
+    # 1 cell becomes 4 cells in 2D view, 8 cells in 3D
+
+# Create a ".foam" file for ParaView
+touch a.foam # name is your choice
+
+#########################################
+## List of files defined by user
+# system/
+#   - blockMeshDict         (no changes)
+#   - controlDict           (no changes)
+#   - refineMeshDict        (added)
+#   - topoSetDict.1         (added)
+# Allclean                  (no changes)
+# Allrun                    (modified)

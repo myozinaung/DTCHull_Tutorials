@@ -1,0 +1,113 @@
+/*--------------------------------*- C++ -*----------------------------------*\
+| =========                 |                                                 |
+| \\      /  F ield         | OpenFOAM: The Open Source CFD Toolbox           |
+|  \\    /   O peration     | Version:  v2112                                 |
+|   \\  /    A nd           | Website:  www.openfoam.com                      |
+|    \\/     M anipulation  |                                                 |
+\*---------------------------------------------------------------------------*/
+FoamFile
+{
+    version     2.0;
+    format      ascii;
+    class       dictionary;
+    object      fvSolution;
+}
+// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
+// The equation solvers, tolerances and algorithms are controlled
+
+solvers // specifies each linear-solver that is used for each discretised equation; here, the term linear-solver refers to the method of number-crunching to solve a matrix equation, as opposed to an application solver, such as simpleFoam/interFoam which describes the entire set of equations and algorithms to solve a particular problem
+{
+    "alpha.water.*"
+    {
+        nAlphaCorr      2;
+        nAlphaSubCycles 1;
+        cAlpha          1;
+        icAlpha         0;
+
+        MULESCorr       yes;
+        nLimiterIter    10;
+        alphaApplyPrevCorr  yes;
+
+        solver          smoothSolver; // solver that uses a smoother
+        smoother        symGaussSeidel;
+        tolerance       1e-8;
+        relTol          0;
+        minIter         1; // minimum iteration, maxIter is optional and defaults to a value of 1000
+    }
+
+    "pcorr.*"
+    {
+        solver          PCG; // preconditioned (bi-)conjugate gradient
+        preconditioner
+        {
+            preconditioner  GAMG; // generalised geometric-algebraic multi-grid
+            smoother        GaussSeidel;
+            tolerance       1e-5;
+            relTol          0;
+        };
+        tolerance       1e-5;
+        relTol          0;
+    };
+
+    p_rgh
+    {
+        solver          GAMG;
+        smoother        DIC;
+        tolerance       1e-7;
+        relTol          0.01;
+    };
+
+    p_rghFinal
+    {
+        $p_rgh;
+        relTol          0;
+    }
+
+    "(U|k|omega).*"
+    {
+        solver          smoothSolver;
+        smoother        symGaussSeidel;
+        nSweeps         1;
+        tolerance       1e-7;
+        relTol          0.1;
+        minIter         1;
+    };
+}
+
+// PISO:    pressure-implicit split-operator
+// SIMPLE:  semi-implicit method for pressure-linked equations
+// PIMPLE:  combined PISO and PIMPLE
+// These algorithms are iterative procedures for coupling equations for momentum and mass conservation, PISO and PIMPLE being used for transient problems and SIMPLE for steady-state.
+PIMPLE
+{
+    momentumPredictor   no; // switch that controls solving of the momentum predictor; typically set to off for some flows, including low Reynolds number and multiphase
+
+    nOuterCorrectors    1; // used by PIMPLE, it enables looping over the entire system of equations within on time step, representing the total number of times the system is solved; must be ≥ 1 and is typically set to 1, replicating the PISO algorithm
+    nCorrectors         2; // used by PISO, and PIMPLE, set number of times the algorithm solves the pressure equation and momentum corrector in each step; typically set to 2 or 3.
+    nNonOrthogonalCorrectors 0; // used by all algorithms, specifies repeated solutions of the pressure equation, used to update the explicit non-orthogonal correction, typically set to 0 (particularly for steady-state) or 1.
+
+    maxCo               10;
+    maxAlphaCo          5;
+
+    rDeltaTSmoothingCoeff 0.05;
+    rDeltaTDampingCoeff 0.5;
+    nAlphaSpreadIter    0;
+    nAlphaSweepIter     0;
+    maxDeltaT           1;
+}
+
+relaxationFactors // controls under-relaxation, a technique used for improving stability of a computation.  Under-relaxation works by limiting the amount which a variable changes from one iteration to the next
+{
+    equations
+    {
+        ".*" 1; // =1: guaranteed matrix diagonal equality/dominance
+    }
+}
+
+cache
+{
+    grad(U);
+}
+
+
+// ************************************************************************* //

@@ -1,0 +1,50 @@
+/*--------------------------------*- C++ -*----------------------------------*\
+| =========                 |                                                 |
+| \\      /  F ield         | OpenFOAM: The Open Source CFD Toolbox           |
+|  \\    /   O peration     | Version:  v2112                                 |
+|   \\  /    A nd           | Website:  www.openfoam.com                      |
+|    \\/     M anipulation  |                                                 |
+\*---------------------------------------------------------------------------*/
+FoamFile
+{
+    version     2.0;
+    format      ascii;
+    class       dictionary;
+    object      decomposeParDict;
+}
+// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
+// define how mesh and parameters will be distrubuted to different CPU cores/threads
+// for more information:
+// https://cfd.direct/openfoam/user-guide/v6-running-applications-parallel/
+
+numberOfSubdomains 8; // decompose into 8 blocks (need 8 cores/threads to run)
+
+method             hierarchical;
+
+coeffs
+{
+    n           (2 2 2); // number of subdomains in x,y,z
+    // one big block is divided into 8 blocks
+
+}
+
+
+// ************************************************************************* //
+
+/*
+
+The user has a choice of four methods of decomposition, specified by the method keyword as described below.
+
+simple:
+Simple geometric decomposition in which the domain is split into pieces by direction, e.g. 2 pieces in the x direction, 1 in y etc. 
+
+hierarchical:
+Hierarchical geometric decomposition which is the same as simple except the user specifies the order in which the directional split is done, e.g. first in the y-direction, then the x-direction etc. 
+
+scotch:
+Scotch decomposition which requires no geometric input from the user and attempts to minimise the number of processor boundaries. The user can specify a weighting for the decomposition between processors, through an optional processorWeights keyword which can be useful on machines with differing performance between processors. There is also an optional keyword entry strategy that controls the decomposition strategy through a complex string supplied to Scotch. 
+
+manual:
+Manual decomposition, where the user directly specifies the allocation of each cell to a particular processor.
+
+*/

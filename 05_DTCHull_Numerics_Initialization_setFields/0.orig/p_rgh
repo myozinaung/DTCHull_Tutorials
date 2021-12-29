@@ -1,0 +1,56 @@
+/*--------------------------------*- C++ -*----------------------------------*\
+| =========                 |                                                 |
+| \\      /  F ield         | OpenFOAM: The Open Source CFD Toolbox           |
+|  \\    /   O peration     | Version:  v2112                                 |
+|   \\  /    A nd           | Website:  www.openfoam.com                      |
+|    \\/     M anipulation  |                                                 |
+\*---------------------------------------------------------------------------*/
+FoamFile
+{
+    version     2.0;
+    format      ascii;
+    class       volScalarField;
+    object      p_rgh; // Pseudo hydrostatic pressure, p minus rho*g*h
+}
+// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
+// for buoyant and multiphase cases, it is numerically convenient to solve for an alternative pressure defined by
+// p_rgh = p - rho*g*h
+// p_rgh (Pseudo hydrostatic pressure, Perturbation Pressure) = Total Pressure - Hydrostatic Pressure
+// for more information: 
+// https://www.openfoam.com/documentation/guides/latest/doc/guide-applications-solvers-variable-transform-p-rgh.html
+// https://www.openfoam.com/documentation/guides/latest/api/classFoam_1_1prghPressureFvPatchScalarField.html
+
+dimensions      [1 -1 -2 0 0 0 0]; // [Pa]
+
+internalField   uniform 0;
+
+boundaryField
+{
+    #includeEtc "caseDicts/setConstraintTypes"
+
+    inlet
+    {
+        type            fixedFluxPressure;
+        value           $internalField;
+    }
+
+    outlet
+    {
+        type            zeroGradient;
+    }
+
+    atmosphere
+    {
+        type            totalPressure;
+        p0              uniform 0;
+    }
+
+    hull
+    {
+        type            fixedFluxPressure;
+        value           $internalField;
+    }
+}
+
+
+// ************************************************************************* //

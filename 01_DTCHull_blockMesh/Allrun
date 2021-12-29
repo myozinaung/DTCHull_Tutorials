@@ -1,0 +1,15 @@
+. ${WM_PROJECT_DIR:?}/bin/tools/RunFunctions # This is a hack to get the path to the RunFunctions.sh script, to use tutorial functions
+
+## Block mesh generation with z-direction refinement
+runApplication blockMesh
+
+# Create a ".foam" file for ParaView
+touch a.foam # name is your choice
+
+#########################################
+## List of files defined by user
+# system/
+#   - blockMeshDict         (added)
+#   - controlDict           (added) only to be able to run blockMesh
+# Allclean                  (added)
+# Allrun                    (added)
