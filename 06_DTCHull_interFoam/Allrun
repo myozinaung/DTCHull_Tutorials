@@ -117,7 +117,6 @@ touch a.foam # name is your choice
 #   - U                             (no changes)
 #   - p_rgh                         (no changes)
 #   - alpha.water                   (no changes)
-#   - pointDisplacement             (no changes)
 
 # Allclean                          (no changes)
 # Allrun                            (modified)

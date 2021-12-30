@@ -100,7 +100,7 @@ touch a.foam # name is your choice
 #   - U                             (added) Velocity
 #   - p_rgh                         (added) p_rgh = p - rho*g*h
 #   - alpha.water                   (added)
-#   - pointDisplacement             (added)
+#   - pointDisplacement             (not added) included in original tutorial, there is no moving boundry, not essential in this case, everything = 0.
 
 # Allclean                          (no changes)
 # Allrun                            (modified)

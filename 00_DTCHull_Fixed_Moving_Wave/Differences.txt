@@ -1,0 +1,50 @@
+DTCHull vs DTCHullMoving
+Modified:
+0.orig/
+    - omega                 (minor) added: hull {blended true;}
+    - U                     (minor) added: atmosphere {tangentialVelocity $internalField;}
+system/
+    - controlDict           (major) modified: deltaT, endTime, writeControl, writeInterval; added: variable time step using Courant no.
+    - fvSchemes             (minor) modified: ddtSchemes {default Euler;}, previously it was "localEuler"
+    - fvSolution            (major) several modifications, see the files
+    - snappyHexMeshDict     (minor) modified: featureAngle; added: "mergePatchFacesAngle", "layerTerminationAngle", "slipFeatureAngle"
+
+Added:
+constant/
+    - dynamicMeshDict           :\ Rigid-body Motion Solver and, Mass, Inertia and Motion related properties
+    - dynamicMeshDict.sixDoF    :/ https://openfoamwiki.net/index.php/DynamicMeshDict (Is this used?)
+----------------------------------------------------------------------------------------------
+
+DTCHull vs DTCHullWave(OpenFoam-dev)
+Modified:
+0.orig/
+    - alpha.water           (minor) modified: inlet {type   waveAlpha;}, previously "fixedValue"
+    - p_rgh                 (minor) modified: atmosphere {type prghEntrainmentPressure;}, previously "totalPressure"
+    - U                     (minor) modified: inlet {type   waveVelocity}, outlet {UnMean   #neg $UxMean;}, UMean is replaced by UnMean and UxMean
+                                    added: atmosphere {tangentialVelocity $internalField;}
+system/
+    - controlDict           (major) modified: deltaT, endTime, writeControl, writeInterval;
+                                    added: variable time step using Courant no., post-processing function for saving free surface vtk file
+    - blockMeshDict         (minor) modified: block is 6m shorter in front of the hull (16m to 10m), Mesh no. in x-dir: from 42 to 36
+    - decomposeParDict      (minor) modified: decomposition method: from "hierarchical" to "scotch"
+    - fvSchemes             (minor) modified: ddtSchemes {default Euler;}, previously it was "localEuler", also a couple of changes in "divSchemes"
+    - fvSolution            (major) several modifications, see the files (more similar to DTCHullMoving)
+    - snappyHexMeshDict     (minor) basically same as DTCHull, setting geometry STL file is a little different
+
+Allrun                      (major) meshing is moved to "Allmesh", "setFields" is "replaced with "setWaves"
+
+Added:
+constant/
+    - dynamicMeshDict           : same as DTCHullMoving (not .sixDoF one)
+    - momentumTransport         : replaces the "turbulenceProperties" (same content)
+    - phaseProperties           :\
+    - physicalProperties.air    : \ replaces the "transportProperties" (separated into 3 files)
+    - physicalProperties.water  :/  uses "viscoisityModel constant;" instead of "transportModel  Newtonian;"
+    - waveProperties            : sets "Waterline height", "Stroke2 Wave properties", "U value"
+
+system/
+    - setWavesDict              : repalces the "setFieldsDict"
+    - surfaceFeatureDict        : replaces the "surfaceFeatureExtractDict" (basically same)
+    - topoSetDict               : repalces the six "topoSetDict.x" (combines them in single file, cellSet names are different)
+
+Allmesh                         : reads topoSet properties from single "topoSetDict" file

@@ -1,0 +1,48 @@
+### List of Things to Modify for Your Own Ship ###
+
+#-------------- Mesh-generation related files --------------------#
+# system/
+#   - blockMeshDict                 : adjust the blocks and mesh size acrd. to your model/ship size, adjust the free surface location and mesh density
+#   - refineMeshDict                (no changes)
+#   - topoSetDict.1                  \
+#   - topoSetDict.2                   \   adjust the number and size of refinement regions.
+#   - topoSetDict.3                    \  At each refinement level, the new region should be completely within the previous region
+#   - topoSetDict.4                    /  check the recommended relative size of final refinement mesh compared to ship geometry size
+#   - topoSetDict.5                   /
+#   - topoSetDict.6                  /
+#   - surfaceFeatureExtractDict     : set the name of your STL file
+#   - meshQualityDict               (no changes) unless you want otherwise
+#   - snappyHexMMeshDict            : set the name of your STL and eMesh file
+                                    : adjust Maximum cell numbers acrd. to how you set up in blockMesh and refineMesh steps
+                                    : When you use higher mesh density and larger refinement regions, cell limits should be increased to keep the mesh quality
+                                    : Adjust no. of boundry layers and their thickness (expansion ratio)
+                                    : Tutorial case use Wall Functions for hull boundry, so the first cell center needs to be placed in the log-law region (30 < y+ < 200)
+                                    : https://www.cfd-online.com/Wiki/Y_plus_wall_distance_estimation, https://www.cfd-online.com/Tools/yplus.php (check y+ excel file)
+# constant/triSurface/
+#   - DTC-scaled.stl.gz             : your STL file (no need if you automatically copy in command line)
+
+#-------- Numerics, Initilization and Simulation Control ---------#
+# system/
+#   - controlDict                   : set forces and moment measuring point (CofR), not essential if you are only interested in Resistance forces
+                                    : You may want adjust time and time step settings if your model size is drastically different from tutorial DTC model
+                                    : You may want to use variable time step depending on Maximum Courant Number
+                                    : You may add additional functions for post-processing
+#   - fvSchemes                     (no changes) unless you want otherwise
+#   - fvSolutions                   (no changes) unless you want otherwise (may increase "nNonOrthogonalCorrectors" if the mesh Non-orthogonal quality is not very good)
+#   - setFieldsDict                 : adjust the water height
+#   - decomposeDict                 : Set to your available CPU cores/threads, not reommended to decompose a small case to many CPU cores, it could take longer due to communication bottle neck.
+# constant/
+#   - g                             (no changes)
+#   - hRef                          : set your water height
+#   - transportProperties           (no changes) water and air density and viscosity: will used in extrapolation to ship resistance
+#   - turbulenceProperties          (no changes) unless you want otherwise
+# 0/
+#   - k                             (no changes)
+#   - omega                         (no changes)
+#   - nut                           (no changes)
+#   - U                             : set your ship speed acrd. to Froude Number
+#   - p_rgh                         (no changes)
+#   - alpha.water                   (no changes)
+
+# Allclean                          (no changes)
+# Allrun                            : set file path to your STL file
