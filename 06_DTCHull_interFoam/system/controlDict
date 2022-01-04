@@ -30,7 +30,7 @@ writeControl    timeStep;
 
 writeInterval   100;
 
-purgeWrite      0;
+purgeWrite      0; // no time data will be overwritten
 
 writeFormat     binary;
 
@@ -94,6 +94,8 @@ functions // Post-processing functions
     //     );
     //     interpolationScheme cell;
     // }
+
+    // https://www.openfoam.com/documentation/guides/latest/doc/guide-function-objects.html
 }
 
 
