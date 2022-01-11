@@ -17,6 +17,8 @@ FoamFile
 // for better explaination with pictures:
 // https://cfd.direct/openfoam/user-guide/v6-snappyhexmesh/
 // https://www.openfoam.com/documentation/guides/latest/doc/guide-meshing-snappyhexmesh.html
+// SnappyHexMesh Calculator: https://cfdfeaservice.it/index.php/2019/05/04/calcolo-mesh-con-snappyhexmesh/
+
 
 // snappyHexMesh use "meshQualityDict" file to ensure the required quality defined by the user
 

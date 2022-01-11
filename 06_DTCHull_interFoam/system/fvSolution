@@ -14,6 +14,7 @@ FoamFile
 }
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
 // The equation solvers, tolerances and algorithms are controlled
+// https://www.openfoam.com/documentation/user-guide/6-solving/6.3-solution-and-algorithm-control
 
 solvers // specifies each linear-solver that is used for each discretised equation; here, the term linear-solver refers to the method of number-crunching to solve a matrix equation, as opposed to an application solver, such as simpleFoam/interFoam which describes the entire set of equations and algorithms to solve a particular problem
 {

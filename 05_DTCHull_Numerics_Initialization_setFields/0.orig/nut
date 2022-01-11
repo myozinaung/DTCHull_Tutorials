@@ -13,7 +13,8 @@ FoamFile
     object      nut; // turbulence viscosity of the boundary condition
 }
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
-// Turbulence viscosity can be used to correct the viscosity to get the proper wall shear stress when using turbulence model to do the CFD simulations.
+// Turbulence viscosity can be used to correct the viscosity 
+// to get the proper wall shear stress when using turbulence model to do the CFD simulations.
 
 dimensions      [0 2 -1 0 0 0 0]; // [m^2/s]
 

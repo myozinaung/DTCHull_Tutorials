@@ -47,7 +47,7 @@ runTimeModifiable yes;
 // Extra (to adjust deltaT according to maximum Courant number, Recommanded)
 // adjustTimeStep  yes; // it may take longer due to small dt
 // maxCo           1; // Maximum Courant no. (Co = U dt/dx), Co = 1: dt < dx/U, could be larger value for full scale ship
-// maxAlphaCo      1;
+// maxAlphaCo      1; // Semi-implicit MULSE: https://openfoam.org/release/2-3-0/multiphase/
 // maxDeltaT       1;
 
 functions // Post-processing functions

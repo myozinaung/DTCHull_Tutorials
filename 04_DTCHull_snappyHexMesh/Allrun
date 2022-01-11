@@ -12,7 +12,7 @@ do
 
     runApplication -s "$i" \
         refineMesh -dict system/refineMeshDict -overwrite # refine mesh on existing mesh (Overwrite the existing mesh files)
-        # 1 cell in box region becomes 4 cells in 2D view, 8 cells in 3D after each refinement
+        # 1 cell in box region becomes 4 cells  after each refinement
 done
 # mesh size after final refinement is about 1.4 million, this will get less after trimming the hull geometry using "snappyHexMesh" (next tutorial)
 
