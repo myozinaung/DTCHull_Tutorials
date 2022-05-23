@@ -11,8 +11,8 @@ system/
 
 Added:
 constant/
-    - dynamicMeshDict           :\ Rigid-body Motion Solver and, Mass, Inertia and Motion related properties
-    - dynamicMeshDict.sixDoF    :/ https://openfoamwiki.net/index.php/DynamicMeshDict (Is this used?)
+    - dynamicMeshDict           : Rigid-body Motion Solver and, Mass, Inertia and Motion related properties (support multiple bodies)
+    - dynamicMeshDict.sixDoF    : Support only one body
 ----------------------------------------------------------------------------------------------
 
 DTCHull vs DTCHullWave(OpenFoam-dev)

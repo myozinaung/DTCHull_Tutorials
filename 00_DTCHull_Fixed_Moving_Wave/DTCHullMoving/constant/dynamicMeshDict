@@ -56,7 +56,7 @@ bodies
         }
 
         patches         (hull);
-        innerDistance   0.3;
+        innerDistance   0.3; // no moorphing(deformation) between innerDistance and outerDistance
         outerDistance   1;
     }
 }
