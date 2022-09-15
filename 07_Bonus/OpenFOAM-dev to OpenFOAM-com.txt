@@ -1,0 +1,55 @@
+OpenFOAM-dev to OpenFOAM.com (v2206)
+
+Rename	Remove ".orig" from all file within "0" folder
+Rename	"0" folder to "0.orig"
+Replace	"cleanCase" with "cleanCase0" in "Allclean" (better to replace the whold "Allclean" file)
+Add "restore0Dir"	in Allrun (just before setFields)
+
+U				-->	#neg doesn't work (modfiy not to include that)
+					outlet --> change "UnMean" to "Umean" 
+
+Move "renumberMesh" from "Allmesh" to "Allrun"
+	--> put it after "decomposePar"
+	--> run in Parallel
+	--> also remove "-noFileds" option
+
+
+controlDict			-->	"rigidBodySate" function object doesn't work
+					--> replace with "sixDoFRigidBodyState"
+					--> replace "dynamicMeshDict" with "dynamicMeshDict.sixDoF" (switch file names)
+
+surfaceFeatures		-->	surfaceFeatureExtract
+surfaceFeaturesDict	-->	surfaceFeatureExtractDict (includedAngle 150 --> 155 for Bow Thruster)
+
+blockMesh			-->	OK
+blockMeshDict 		-->	change "convertToMeters" to "scale"
+
+refineMesh			-->	OK
+refineMeshDict		-->	OK
+topoSet			-->	OK
+topoSetDict			-->	OK
+
+snappyHexMesh		-->	OK
+snappyHexMesh		-->	OK
+meshQualityDict		-->	OK
+
+checkMesh			-->	OK
+
+setFields			-->	OK
+setFieldsDict		-->	OK
+
+decomposePar		-->	OK (DON'T FORGET to decompose into HPC cores)
+
+renumberMesh		-->	OK (this may need to run on HPC if local PC doesn't have enough cores)
+--------- on HPC ---------------
+interFoam			-->	OK
+
+dynamicMeshDict		-->	OK
+dynamicMeshDict.sixDoF	-->	OK
+
+reconstructPar		-->	OK
+
+postProcessing		--> 	forces --> file name and write format/column no. are different
+					sixDoFRigidBodyState --> file name and write format/column no. are different
+
+
